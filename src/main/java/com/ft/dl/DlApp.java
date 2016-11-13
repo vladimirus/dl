@@ -8,10 +8,7 @@ import com.ft.apiingester.connector.ContentConnector;
 import com.ft.dl.configuration.DlConfiguration;
 import com.ft.dl.connector.ContentV1Connector;
 import com.ft.dl.converter.ContentConverter;
-import com.ft.dl.service.ArticleDownloader;
-import com.ft.dl.service.ContentManager;
-import com.ft.dl.service.DefaultContentManager;
-import com.ft.dl.service.DefaultDownloader;
+import com.ft.dl.service.*;
 import com.ft.ingestertemplate.ingestion.ApiConnector;
 import com.sun.jersey.api.client.Client;
 import com.xeiam.dropwizard.sundial.SundialBundle;
@@ -21,6 +18,8 @@ import io.dropwizard.Application;
 import io.dropwizard.Configuration;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+
+import java.nio.file.Paths;
 
 @SuppressWarnings("unchecked")
 public class DlApp extends Application<DlConfiguration> {
@@ -47,7 +46,8 @@ public class DlApp extends Application<DlConfiguration> {
 
         ContentConverter contentConverter = new ContentConverter(environment.getObjectMapper());
         ArticleDownloader downloader = new DefaultDownloader(contentConnector, contentConverter);
-        ContentManager contentManager = new DefaultContentManager(contentConverter);
+        FileManager fileManager = new FileManager(Paths.get("/Volumes/Untitled/content"));
+        ContentManager contentManager = new DefaultContentManager(contentConverter, fileManager);
 
         environment.getApplicationContext().setAttribute("downloader", downloader);
         environment.getApplicationContext().setAttribute("contentManager", contentManager);

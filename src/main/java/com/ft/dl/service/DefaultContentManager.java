@@ -24,24 +24,23 @@ import java.util.Optional;
 
 public class DefaultContentManager implements ContentManager {
     private final Logger LOGGER = LoggerFactory.getLogger(DefaultContentManager.class);
-    private Path workDir;
     private ContentConverter contentConverter;
+    private FileManager fileManager;
 
-    public DefaultContentManager(ContentConverter contentConverter) {
+    public DefaultContentManager(ContentConverter contentConverter, FileManager fileManager) {
         this.contentConverter = contentConverter;
-        this.workDir = Paths.get("/Volumes/Untitled/content");
-//        this.workDir = Paths.get("/Users/vladimir/Downloads/content");
+        this.fileManager = fileManager;
     }
 
     public Optional<Path> save(EnrichedContent enrichedContent) {
         return contentConverter.enrichedContent(enrichedContent)
                 .flatMap(s -> {
-                    LocalDateTime publishedDate = date(enrichedContent.getPublishedDate()).orElseGet(LocalDateTime::now);
-                    Path dir = workDir.resolve(Integer.toString(publishedDate.getYear()))
+                    LocalDateTime publishedDate = fileManager.date(enrichedContent.getPublishedDate()).orElseGet(LocalDateTime::now);
+                    Path dir = fileManager.resolve(Integer.toString(publishedDate.getYear()))
                             .resolve(Integer.toString(publishedDate.getMonthValue()))
                             .resolve(Integer.toString(publishedDate.getDayOfMonth()));
-                    Path file = createDir(dir).resolve(idFromUrl(enrichedContent.getId()));
-                    return write(s, file).map(f -> setLastModifiedTime(publishedDate, f));
+                    Path file = fileManager.createDir(dir).resolve(idFromUrl(enrichedContent.getId()));
+                    return fileManager.write(s, file).map(f -> setLastModifiedTime(publishedDate, f));
                 });
     }
 
@@ -51,32 +50,5 @@ public class DefaultContentManager implements ContentManager {
         } catch (Exception e) {
             return file;
         }
-    }
-
-    private Optional<Path> write(String s, Path file) {
-        try {
-            return Optional.of(Files.write(file, s.getBytes(), CREATE, TRUNCATE_EXISTING));
-        } catch (Exception e) {
-            return empty();
-        }
-    }
-
-    private Optional<LocalDateTime> date(String date) {
-        try {
-            return of(stringToDate(date));
-        } catch (Exception e) {
-            return empty();
-        }
-    }
-
-    private Path createDir(Path dir) {
-        try {
-            if (!exists(dir)) {
-                return createDirectories(dir);
-            }
-        } catch (Exception ignore) {
-            //
-        }
-        return dir;
     }
 }
