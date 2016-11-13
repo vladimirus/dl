@@ -1,0 +1,60 @@
+sundial:
+  thread-pool-size: 10
+  shutdown-on-unload: true
+  wait-on-shutdown: false
+  start-delay-seconds: 10
+  start-scheduler-on-load: true
+  global-lock-on-load: false
+  annotated-jobs-package-name: com.ft.dl.jobs
+
+server:
+  applicationConnectors:
+    - type: http
+      port: 16090
+
+  adminConnectors:
+    - type: http
+      port: 16091
+
+  requestLog:
+    appenders:
+      - type: console
+        logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m [%thread]%n%xEx"
+        timeZone: UTC
+      - type: file
+        logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m [%thread]%n%xEx"
+        currentLogFilename: /var/log/apps/dl-dw-access.log
+        archivedLogFilenamePattern: /var/log/apps/dl-dw-access-%d.log.gz
+        archivedFileCount: 1
+        timeZone: UTC
+
+logging:
+  level: INFO
+  loggers:
+    com.ft.dl: DEBUG
+
+  appenders:
+    - type: console
+      logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m [%thread]%n%xEx"
+    - type: file
+      threshold: ALL
+      currentLogFilename: /var/log/apps/dl-dw-app.log
+      archivedLogFilenamePattern: /var/log/apps/dl-dw-app-%d.log.gz
+      archivedFileCount: 1
+      timeZone: UTC
+
+contentApiConfiguration:
+  clientConfiguration:
+    connectTimeout: 500
+    readTimeout: 10000
+
+  endpointConfiguration:
+    shortName: "ContentAPI"
+    path: /
+    jerseyClient:
+        timeout: 15000ms
+        gzipEnabledForRequests: false
+    primaryNodes: ["api.ft.com:80:80"]
+
+  knownId: "f908e534-2942-11e5-8db8-c033edba8a6e"
+  apiKey: "x"
