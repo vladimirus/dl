@@ -81,7 +81,7 @@ public class Word2VecTrain {
 
         Word2Vec vec = new Word2Vec.Builder()
                 .minWordFrequency(5)
-                .iterations(1)
+                .iterations(5)
                 .layerSize(100)
                 .seed(42)
                 .windowSize(5)
@@ -90,8 +90,6 @@ public class Word2VecTrain {
                 .build();
 
         vec.fit();
-
-        System.out.println(vec.wordsNearest("putin", 10));
 
         WordVectorSerializer.writeWordVectors(vec, MODEL);
 //
